@@ -6,13 +6,21 @@ import tsconfigPaths from "vite-tsconfig-paths";
 export default defineConfig({
   plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
   resolve: {
+    // Форсим ESM-версию утилит, иначе SSR может схватить CJS и упасть с exports is not defined.
     alias: {
-      "primereact/utils": "primereact/utils/utils.cjs.js",
+      "primereact/utils": "primereact/utils/utils.esm.js",
     },
+    dedupe: ["react", "react-dom"],
+    conditions: ["import", "module", "browser", "default"],
   },
   ssr: {
-    // Собираем primereact внутрь SSR-бандла, чтобы не оставлять
-    // внешние директории и не ловить ERR_UNSUPPORTED_DIR_IMPORT.
+    // Собираем primereact внутрь SSR-бандла, чтобы не оставлять внешние директории.
     noExternal: ["primereact", "primeicons"],
+    resolve: {
+      conditions: ["import", "module", "browser", "default"],
+    },
+  },
+  optimizeDeps: {
+    include: ["primereact"],
   },
 });
