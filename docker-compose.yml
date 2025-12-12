@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: serve -s build/client -l 3000 -n
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      # Если .env отсутствует, можно задать здесь:
+      # VITE_API_BASE_URL: "http://localhost:3000"
+      NODE_ENV: production
+    restart: unless-stopped
+
