@@ -1,4 +1,4 @@
-import { createContext, createElement, useContext, useReducer } from "react";
+import { createContext, createElement, useContext, useReducer, useEffect } from "react";
 
 type AuthState = {
   user: { id: string; email: string } | null;
@@ -8,7 +8,8 @@ type AuthState = {
 
 type AuthAction =
   | { type: "SET_SESSION"; payload: { user: AuthState["user"]; accessToken: string } }
-  | { type: "CLEAR_SESSION" };
+  | { type: "CLEAR_SESSION" }
+  | { type: "INIT_SESSION"; payload: { accessToken: string } };
 
 const initialState: AuthState = {
   user: null,
@@ -23,6 +24,12 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
         user: action.payload.user,
         accessToken: action.payload.accessToken,
         isAuthenticated: true,
+      };
+    case "INIT_SESSION":
+      return {
+        ...state,
+        accessToken: action.payload.accessToken,
+        isAuthenticated: !!action.payload.accessToken,
       };
     case "CLEAR_SESSION":
       return initialState;
@@ -41,6 +48,13 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      dispatch({ type: "INIT_SESSION", payload: { accessToken: token } });
+    }
+  }, []);
 
   return createElement(
     AuthContext.Provider,
