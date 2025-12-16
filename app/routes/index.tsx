@@ -1,14 +1,12 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
-import { AuthProvider } from "~/api/auth/auth-store";
+import { tokenManager } from "~/api/auth/token-manager";
 
-function IndexContent() {
+export default function Index() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      // Даем время на инициализацию состояния из localStorage
+    if (tokenManager.hasToken()) {
       const timer = setTimeout(() => {
         navigate("/task-list");
       }, 100);
@@ -19,13 +17,5 @@ function IndexContent() {
   }, [navigate]);
 
   return null;
-}
-
-export default function Index() {
-  return (
-    <AuthProvider>
-      <IndexContent />
-    </AuthProvider>
-  );
 }
 

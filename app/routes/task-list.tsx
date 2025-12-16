@@ -1,5 +1,4 @@
 import type { Route } from "./+types/task-list";
-import { AuthProvider } from "~/api/auth/auth-store";
 import { ProtectedRoute } from "~/ui/protected-route";
 
 export function meta({}: Route.MetaArgs) {
@@ -11,15 +10,13 @@ export function meta({}: Route.MetaArgs) {
 
 export default function TaskList() {
   return (
-    <AuthProvider>
-      <ProtectedRoute>
-        <main className="page">
-          <div style={{ width: "100%", maxWidth: 1200, display: "grid", gap: 16 }}>
-            <h1 style={{ fontSize: 24, fontWeight: 600, textAlign: "center" }}>Список задач</h1>
-            <p>Здесь будет список задач</p>
-          </div>
-        </main>
-      </ProtectedRoute>
-    </AuthProvider>
+    <ProtectedRoute>
+      <main className="page">
+        <div style={{ width: "100%", maxWidth: 1200, display: "grid", gap: 16 }}>
+          <h1 style={{ fontSize: 24, fontWeight: 600, textAlign: "center" }}>Список задач</h1>
+          <p>Здесь будет список задач</p>
+        </div>
+      </main>
+    </ProtectedRoute>
   );
 }

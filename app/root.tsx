@@ -14,7 +14,9 @@ import "primeicons/primeicons.css";
 
 import type { Route } from "./+types/root";
 import "./styles/main.scss";
-import { ToastProvider } from "./ui/toast-provider";
+import { ToastProvider } from "./ui/base/toast-provider";
+import { AuthProvider } from "./api/auth/auth-store";
+import { Header } from "./ui/base/header";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -53,11 +55,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-      <PrimeReactProvider value={{ ripple: true }}>
-        <ToastProvider>
+    <PrimeReactProvider value={{ ripple: true }}>
+      <ToastProvider>
+        <AuthProvider>
+          <Header />
           <Outlet />
-        </ToastProvider>
-      </PrimeReactProvider>
+        </AuthProvider>
+      </ToastProvider>
+    </PrimeReactProvider>
   );
 }
 

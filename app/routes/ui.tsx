@@ -1,5 +1,5 @@
 import type { Route } from "./+types/ui";
-import { UiKitPage } from "../ui/ui-kit";
+import { UiKitPage } from "../ui/ui-kit/ui-kit";
 
 export function meta({}: Route.MetaArgs) {
   return [

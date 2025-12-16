@@ -1,20 +1,19 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useAuthStore } from "~/api/auth/auth-store";
+import { tokenManager } from "~/api/auth/token-manager";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { state } = useAuthStore();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
+    if (!tokenManager.hasToken()) {
       navigate("/login");
     }
   }, [navigate]);
 
-  const token = localStorage.getItem("token");
-  if (!token) {
+  if (!tokenManager.hasToken()) {
     return null;
   }
 

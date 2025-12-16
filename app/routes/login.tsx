@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
-import { AuthProvider, useAuthStore } from "~/api/auth/auth-store";
-import { LoginForm } from "~/ui/login-form";
+import { useAuthStore } from "~/api/auth/auth-store";
+import { LoginForm } from "~/ui/forms/login-form";
 
 export function meta() {
   return [
@@ -10,32 +10,23 @@ export function meta() {
   ];
 }
 
-function LoginContent() {
+export default function Login() {
   const { state } = useAuthStore();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token && state.isAuthenticated) {
+    if (state.isAuthenticated) {
       navigate("/task-list");
     }
   }, [state.isAuthenticated, navigate]);
 
   return (
     <main className="page">
-      <div style={{ width: "100%", maxWidth: 384, display: "grid", gap: 16 }}>
+      <div style={{ width: "100%", maxWidth: 450, display: "grid", gap: 26, border: "1px solid #e3e4ec", borderRadius: 8, padding: 50  }}>
         <h1 style={{ fontSize: 24, fontWeight: 600, textAlign: "center" }}>Вход</h1>
         <LoginForm />
       </div>
     </main>
-  );
-}
-
-export default function Login() {
-  return (
-    <AuthProvider>
-      <LoginContent />
-    </AuthProvider>
   );
 }
 

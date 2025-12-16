@@ -1,4 +1,6 @@
 import { createContext, createElement, useContext, useReducer, useEffect } from "react";
+import { login as loginApi, type LoginRequest } from "./auth-api";
+import { tokenManager } from "./token-manager";
 
 type AuthState = {
   user: { id: string; email: string } | null;
@@ -42,6 +44,8 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
 type AuthContextValue = {
   state: AuthState;
   dispatch: React.Dispatch<AuthAction>;
+  login: (credentials: LoginRequest) => Promise<void>;
+  logout: () => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -49,16 +53,48 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
+  // Инициализация из токена при загрузке
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = tokenManager.getToken();
     if (token) {
       dispatch({ type: "INIT_SESSION", payload: { accessToken: token } });
     }
   }, []);
 
+  // Слушаем событие выхода из системы (от axios при 401)
+  useEffect(() => {
+    const handleLogout = () => {
+      dispatch({ type: "CLEAR_SESSION" });
+    };
+
+    window.addEventListener("auth:logout", handleLogout);
+    return () => {
+      window.removeEventListener("auth:logout", handleLogout);
+    };
+  }, []);
+
+  const login = async (credentials: LoginRequest) => {
+    const response = await loginApi(credentials);
+    // Сохраняем токен через tokenManager
+    tokenManager.setToken(response.accessToken);
+    dispatch({
+      type: "SET_SESSION",
+      payload: {
+        user: response.user,
+        accessToken: response.accessToken,
+      },
+    });
+  };
+
+  const logout = () => {
+    // Удаляем токен через tokenManager
+    tokenManager.removeToken();
+    dispatch({ type: "CLEAR_SESSION" });
+  };
+
   return createElement(
     AuthContext.Provider,
-    { value: { state, dispatch } },
+    { value: { state, dispatch, login, logout } },
     children
   );
 }
