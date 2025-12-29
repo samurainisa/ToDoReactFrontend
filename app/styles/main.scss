@@ -110,6 +110,31 @@ a {
   line-height: 1;
 }
 
+.chart-tooltip {
+  position: fixed;
+  z-index: 4200;
+  max-width: 260px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(17, 24, 39, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.35);
+  color: #ffffff;
+  font-size: 12px;
+  line-height: 1.25;
+  pointer-events: none;
+}
+
+.chart-tooltip__title {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.chart-tooltip__line + .chart-tooltip__line {
+  margin-top: 2px;
+  opacity: 0.92;
+}
+
 // Фикс для flickering/невидимости Dialog в Vite
 // См. https://github.com/primefaces/primereact/issues/3122
 .p-dialog:not([class*="p-dialog-"]) {
