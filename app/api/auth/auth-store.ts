@@ -1,106 +1,99 @@
-import { createContext, createElement, useContext, useReducer, useEffect } from "react";
-import { login as loginApi, type LoginRequest } from "./auth-api";
+import { create } from "zustand";
+import {
+  getMe,
+  login as loginApi,
+  register as registerApi,
+  type AuthUser,
+  type LoginRequest,
+  type RegisterRequest,
+} from "./auth-api";
 import { tokenManager } from "./token-manager";
 
 type AuthState = {
-  user: { id: string; email: string } | null;
+  user: AuthUser | null;
   accessToken: string | null;
   isAuthenticated: boolean;
+  isBootstrapping: boolean;
 };
-
-type AuthAction =
-  | { type: "SET_SESSION"; payload: { user: AuthState["user"]; accessToken: string } }
-  | { type: "CLEAR_SESSION" }
-  | { type: "INIT_SESSION"; payload: { accessToken: string } };
 
 const initialState: AuthState = {
   user: null,
   accessToken: null,
   isAuthenticated: false,
+  isBootstrapping: false,
 };
 
-function authReducer(state: AuthState, action: AuthAction): AuthState {
-  switch (action.type) {
-    case "SET_SESSION":
-      return {
-        user: action.payload.user,
-        accessToken: action.payload.accessToken,
-        isAuthenticated: true,
-      };
-    case "INIT_SESSION":
-      return {
-        ...state,
-        accessToken: action.payload.accessToken,
-        isAuthenticated: !!action.payload.accessToken,
-      };
-    case "CLEAR_SESSION":
-      return initialState;
-    default:
-      return state;
-  }
-}
-
-
-type AuthContextValue = {
+type AuthStore = {
   state: AuthState;
-  dispatch: React.Dispatch<AuthAction>;
+  bootstrap: () => Promise<void>;
   login: (credentials: LoginRequest) => Promise<void>;
+  register: (credentials: RegisterRequest) => Promise<void>;
   logout: () => void;
 };
 
-const AuthContext = createContext<AuthContextValue | null>(null);
+export const useAuthStore = create<AuthStore>((set, get) => ({
+  state: initialState,
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(authReducer, initialState);
-
-  // Инициализация из токена при загрузке
-  useEffect(() => {
+  bootstrap: async () => {
     const token = tokenManager.getToken();
-    if (token) {
-      dispatch({ type: "INIT_SESSION", payload: { accessToken: token } });
+    if (!token) {
+      set({ state: initialState });
+      return;
     }
-  }, []);
 
-  // Слушаем событие выхода из системы (от axios при 401)
-  useEffect(() => {
-    const handleLogout = () => {
-      dispatch({ type: "CLEAR_SESSION" });
-    };
+    set((s) => ({
+      state: {
+        ...s.state,
+        accessToken: token,
+        isAuthenticated: true,
+        isBootstrapping: true,
+      },
+    }));
 
-    window.addEventListener("auth:logout", handleLogout);
-    return () => {
-      window.removeEventListener("auth:logout", handleLogout);
-    };
-  }, []);
+    try {
+      const user = await getMe();
+      set({
+        state: {
+          user,
+          accessToken: token,
+          isAuthenticated: true,
+          isBootstrapping: false,
+        },
+      });
+    } catch {
+      tokenManager.removeToken();
+      set({ state: initialState });
+    }
+  },
 
-  const login = async (credentials: LoginRequest) => {
+  login: async (credentials) => {
     const response = await loginApi(credentials);
-    // Сохраняем токен через tokenManager
     tokenManager.setToken(response.accessToken);
-    dispatch({
-      type: "SET_SESSION",
-      payload: {
+    set({
+      state: {
         user: response.user,
         accessToken: response.accessToken,
+        isAuthenticated: true,
+        isBootstrapping: false,
       },
     });
-  };
+  },
 
-  const logout = () => {
-    // Удаляем токен через tokenManager
+  register: async (credentials) => {
+    const response = await registerApi(credentials);
+    tokenManager.setToken(response.accessToken);
+    set({
+      state: {
+        user: response.user,
+        accessToken: response.accessToken,
+        isAuthenticated: true,
+        isBootstrapping: false,
+      },
+    });
+  },
+
+  logout: () => {
     tokenManager.removeToken();
-    dispatch({ type: "CLEAR_SESSION" });
-  };
-
-  return createElement(
-    AuthContext.Provider,
-    { value: { state, dispatch, login, logout } },
-    children
-  );
-}
-
-export function useAuthStore() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuthStore must be used within AuthProvider");
-  return ctx;
-}
+    set({ state: initialState });
+  },
+}));

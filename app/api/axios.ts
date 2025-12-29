@@ -19,10 +19,10 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && error.config.url !== "/auth/login") {
+    const url = error.config?.url;
+    if (error.response?.status === 401 && url !== "/auth/login" && url !== "/auth/register") {
       tokenManager.removeToken();
       window.dispatchEvent(new CustomEvent("auth:logout"));
-      window.location.href = "/login";
     }
     return Promise.reject(error);
   }

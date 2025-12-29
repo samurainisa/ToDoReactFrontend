@@ -7,6 +7,7 @@ import {
   ScrollRestoration,
 } from "react-router";
 
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { PrimeReactProvider } from "primereact/api";
 import "primereact/resources/themes/lara-light-blue/theme.css";
 import "primereact/resources/primereact.min.css";
@@ -15,8 +16,20 @@ import "primeicons/primeicons.css";
 import type { Route } from "./+types/root";
 import "./styles/main.scss";
 import { ToastProvider } from "./ui/base/toast-provider";
-import { AuthProvider } from "./api/auth/auth-store";
+import { useEffect } from "react";
+import { useNavigate } from "react-router";
+import { useAuthStore } from "./api/auth/auth-store";
 import { Header } from "./ui/base/header";
+import { ConfirmDialog } from "primereact/confirmdialog";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -57,13 +70,41 @@ export default function App() {
   return (
     <PrimeReactProvider value={{ ripple: true }}>
       <ToastProvider>
-        <AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <ConfirmDialog />
+          <AuthBootstrapper />
           <Header />
           <Outlet />
-        </AuthProvider>
+        </QueryClientProvider>
       </ToastProvider>
     </PrimeReactProvider>
   );
+}
+
+function AuthBootstrapper() {
+  const bootstrap = useAuthStore((s) => s.bootstrap);
+  const logout = useAuthStore((s) => s.logout);
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    void bootstrap();
+  }, [bootstrap]);
+
+  useEffect(() => {
+    const handleLogout = () => {
+      logout();
+      queryClient.clear();
+      navigate("/login");
+    };
+
+    window.addEventListener("auth:logout", handleLogout);
+    return () => {
+      window.removeEventListener("auth:logout", handleLogout);
+    };
+  }, [logout, navigate, queryClient]);
+
+  return null;
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

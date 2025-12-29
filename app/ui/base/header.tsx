@@ -1,10 +1,12 @@
 import { Link, useNavigate } from "react-router";
 import { useAuthStore } from "~/api/auth/auth-store";
-import { tokenManager } from "~/api/auth/token-manager";
 import { Button } from "primereact/button";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function Header() {
-  if (!tokenManager.hasToken()) {
+  const isAuthenticated = useAuthStore((s) => s.state.isAuthenticated);
+
+  if (!isAuthenticated) {
     return null;
   }
 
@@ -14,9 +16,11 @@ export function Header() {
 function HeaderContent() {
   const { logout, state } = useAuthStore();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const handleLogout = () => {
     logout();
+    queryClient.clear();
     navigate("/login");
   };
 
@@ -47,6 +51,36 @@ function HeaderContent() {
               }}
             >
               Список задач
+            </Link>
+            <Link 
+              to="/projects" 
+              style={{ 
+                textDecoration: "none", 
+                color: "#121212",
+                fontWeight: 500
+              }}
+            >
+              Проекты
+            </Link>
+            <Link 
+              to="/users" 
+              style={{ 
+                textDecoration: "none", 
+                color: "#121212",
+                fontWeight: 500
+              }}
+            >
+              Пользователи
+            </Link>
+            <Link 
+              to="/metrics" 
+              style={{ 
+                textDecoration: "none", 
+                color: "#121212",
+                fontWeight: 500
+              }}
+            >
+              Метрики
             </Link>
             <Link 
               to="/ui" 

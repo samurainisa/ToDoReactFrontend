@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useAuthStore } from "~/api/auth/auth-store";
 import { LoginForm } from "~/ui/forms/login-form";
 
@@ -25,6 +25,9 @@ export default function Login() {
       <div style={{ width: "100%", maxWidth: 450, display: "grid", gap: 26, border: "1px solid #e3e4ec", borderRadius: 8, padding: 50  }}>
         <h1 style={{ fontSize: 24, fontWeight: 600, textAlign: "center" }}>Вход</h1>
         <LoginForm />
+        <div style={{ textAlign: "center", fontSize: 14 }}>
+          Нет аккаунта? <Link to="/register">Зарегистрироваться</Link>
+        </div>
       </div>
     </main>
   );
