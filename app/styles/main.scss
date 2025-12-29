@@ -109,3 +109,15 @@ a {
   transform: translateY(-50%) !important;
   line-height: 1;
 }
+
+// Фикс для flickering/невидимости Dialog в Vite
+// См. https://github.com/primefaces/primereact/issues/3122
+.p-dialog:not([class*="p-dialog-"]) {
+  display: none !important;
+}
+
+.p-dialog-mask {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}

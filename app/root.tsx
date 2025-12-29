@@ -23,7 +23,6 @@ import { useSystemStore } from "./api/system/system-store";
 import { Header } from "./ui/base/header";
 import { ConfirmDialog } from "primereact/confirmdialog";
 import { GlobalLoader } from "./ui/base/global-loader";
-import { forcePrimeDialogRepaint } from "./ui/base/primereact-dialog-workarounds";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -71,15 +70,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <PrimeReactProvider value={{ ripple: true }}>
+    <PrimeReactProvider
+      value={{
+        ripple: true,
+        appendTo: typeof window !== "undefined" ? "self" : undefined,
+      }}
+    >
       <ToastProvider>
         <QueryClientProvider client={queryClient}>
-          <ConfirmDialog
-            appendTo={typeof window !== "undefined" ? document.body : undefined}
-            baseZIndex={3500}
-            blockScroll
-            onShow={forcePrimeDialogRepaint}
-          />
+          <ConfirmDialog baseZIndex={3500} blockScroll />
           <GlobalLoader />
           <AuthBootstrapper />
           <Header />

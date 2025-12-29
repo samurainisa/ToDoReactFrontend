@@ -29,7 +29,6 @@ import {
   type Project,
 } from "~/api/projects/projects-api";
 import { useToast } from "~/ui/base/toast-provider";
-import { forcePrimeDialogRepaint } from "~/ui/base/primereact-dialog-workarounds";
 
 const projectFormSchema = z.object({
   name: z.string().min(1, "Введите название проекта"),
@@ -246,7 +245,6 @@ export function ProjectsPage() {
 
       <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
         <span className="p-input-icon-left" style={{ flex: 1, minWidth: 260 }}>
-          <i className="pi pi-search" />
           <InputText
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
@@ -283,9 +281,7 @@ export function ProjectsPage() {
         header={dialogHeader}
         visible={dialogOpen}
         onHide={() => setDialogOpen(false)}
-        onShow={forcePrimeDialogRepaint}
         style={{ width: "100%", maxWidth: 640 }}
-        appendTo={typeof window !== "undefined" ? document.body : undefined}
         baseZIndex={3500}
         blockScroll
         modal

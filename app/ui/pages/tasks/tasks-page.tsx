@@ -38,7 +38,6 @@ import {
   type Task,
 } from "~/api/tasks/tasks-api";
 import { useToast } from "~/ui/base/toast-provider";
-import { forcePrimeDialogRepaint } from "~/ui/base/primereact-dialog-workarounds";
 
 type TasksPageProps = {
   forcedProjectId?: number;
@@ -498,7 +497,6 @@ export function TasksPage({ forcedProjectId }: TasksPageProps) {
       <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 12 }}>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center" }}>
           <span className="p-input-icon-left" style={{ flex: 1, minWidth: 260 }}>
-            <i className="pi pi-search" />
             <InputText
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
@@ -572,9 +570,7 @@ export function TasksPage({ forcedProjectId }: TasksPageProps) {
         header={dialogHeader}
         visible={dialogOpen}
         onHide={() => setDialogOpen(false)}
-        onShow={forcePrimeDialogRepaint}
         style={{ width: "100%", maxWidth: 720 }}
-        appendTo={typeof window !== "undefined" ? document.body : undefined}
         baseZIndex={3500}
         blockScroll
         modal
