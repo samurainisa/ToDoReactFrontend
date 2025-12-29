@@ -29,6 +29,7 @@ import {
   type Project,
 } from "~/api/projects/projects-api";
 import { useToast } from "~/ui/base/toast-provider";
+import { forcePrimeDialogRepaint } from "~/ui/base/primereact-dialog-workarounds";
 
 const projectFormSchema = z.object({
   name: z.string().min(1, "Введите название проекта"),
@@ -282,7 +283,11 @@ export function ProjectsPage() {
         header={dialogHeader}
         visible={dialogOpen}
         onHide={() => setDialogOpen(false)}
+        onShow={forcePrimeDialogRepaint}
         style={{ width: "100%", maxWidth: 640 }}
+        appendTo={typeof window !== "undefined" ? document.body : undefined}
+        baseZIndex={3500}
+        blockScroll
         modal
       >
         <form onSubmit={handleSubmit(onSubmit)} style={{ display: "grid", gap: 12 }}>

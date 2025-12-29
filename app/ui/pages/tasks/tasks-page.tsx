@@ -38,6 +38,7 @@ import {
   type Task,
 } from "~/api/tasks/tasks-api";
 import { useToast } from "~/ui/base/toast-provider";
+import { forcePrimeDialogRepaint } from "~/ui/base/primereact-dialog-workarounds";
 
 type TasksPageProps = {
   forcedProjectId?: number;
@@ -113,7 +114,7 @@ export function TasksPage({ forcedProjectId }: TasksPageProps) {
     queryFn: () =>
       getProjects({
         page: 1,
-        limit: 1000,
+        limit: 100,
         sortBy: "name",
         sortOrder: "asc",
       }),
@@ -571,7 +572,11 @@ export function TasksPage({ forcedProjectId }: TasksPageProps) {
         header={dialogHeader}
         visible={dialogOpen}
         onHide={() => setDialogOpen(false)}
+        onShow={forcePrimeDialogRepaint}
         style={{ width: "100%", maxWidth: 720 }}
+        appendTo={typeof window !== "undefined" ? document.body : undefined}
+        baseZIndex={3500}
+        blockScroll
         modal
       >
         <form onSubmit={handleSubmit(onSubmit)} style={{ display: "grid", gap: 12 }}>

@@ -132,7 +132,7 @@ export function RegisterForm() {
 
         <div style={{ display: "flex", justifyContent: "center" }}>
           <Button
-            style={{ width: 180 }}
+            style={{ width: "100%" }}
             type="submit"
             label="Зарегистрироваться"
             loading={isSubmitting}
@@ -143,4 +143,3 @@ export function RegisterForm() {
     </div>
   );
 }
-

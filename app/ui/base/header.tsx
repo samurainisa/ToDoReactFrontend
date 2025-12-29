@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router";
 import { useAuthStore } from "~/api/auth/auth-store";
+import { useSystemStore } from "~/api/system/system-store";
 import { Button } from "primereact/button";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -15,12 +16,14 @@ export function Header() {
 
 function HeaderContent() {
   const { logout, state } = useAuthStore();
+  const resetLoading = useSystemStore((s) => s.resetLoading);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const handleLogout = () => {
     logout();
     queryClient.clear();
+    resetLoading();
     navigate("/login");
   };
 

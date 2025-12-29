@@ -19,8 +19,11 @@ import { ToastProvider } from "./ui/base/toast-provider";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useAuthStore } from "./api/auth/auth-store";
+import { useSystemStore } from "./api/system/system-store";
 import { Header } from "./ui/base/header";
 import { ConfirmDialog } from "primereact/confirmdialog";
+import { GlobalLoader } from "./ui/base/global-loader";
+import { forcePrimeDialogRepaint } from "./ui/base/primereact-dialog-workarounds";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -71,7 +74,13 @@ export default function App() {
     <PrimeReactProvider value={{ ripple: true }}>
       <ToastProvider>
         <QueryClientProvider client={queryClient}>
-          <ConfirmDialog />
+          <ConfirmDialog
+            appendTo={typeof window !== "undefined" ? document.body : undefined}
+            baseZIndex={3500}
+            blockScroll
+            onShow={forcePrimeDialogRepaint}
+          />
+          <GlobalLoader />
           <AuthBootstrapper />
           <Header />
           <Outlet />
@@ -84,6 +93,7 @@ export default function App() {
 function AuthBootstrapper() {
   const bootstrap = useAuthStore((s) => s.bootstrap);
   const logout = useAuthStore((s) => s.logout);
+  const resetLoading = useSystemStore((s) => s.resetLoading);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -95,6 +105,7 @@ function AuthBootstrapper() {
     const handleLogout = () => {
       logout();
       queryClient.clear();
+      resetLoading();
       navigate("/login");
     };
 
@@ -102,7 +113,7 @@ function AuthBootstrapper() {
     return () => {
       window.removeEventListener("auth:logout", handleLogout);
     };
-  }, [logout, navigate, queryClient]);
+  }, [logout, navigate, queryClient, resetLoading]);
 
   return null;
 }

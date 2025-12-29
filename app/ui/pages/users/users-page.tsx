@@ -28,6 +28,7 @@ import {
   type User,
 } from "~/api/users/users-api";
 import { useToast } from "~/ui/base/toast-provider";
+import { forcePrimeDialogRepaint } from "~/ui/base/primereact-dialog-workarounds";
 
 const userFormSchema = z.object({
   email: z.string().min(1, "Введите email").email("Введите корректный email"),
@@ -275,7 +276,11 @@ export function UsersPage() {
         header={dialogHeader}
         visible={dialogOpen}
         onHide={() => setDialogOpen(false)}
+        onShow={forcePrimeDialogRepaint}
         style={{ width: "100%", maxWidth: 520 }}
+        appendTo={typeof window !== "undefined" ? document.body : undefined}
+        baseZIndex={3500}
+        blockScroll
         modal
       >
         <form onSubmit={handleSubmit(onSubmit)} style={{ display: "grid", gap: 12 }}>
