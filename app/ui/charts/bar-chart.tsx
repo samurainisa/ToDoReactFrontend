@@ -96,14 +96,13 @@ export function BarChart({ data, height = 260, yLabel }: BarChartProps) {
 
   return (
     <div ref={containerRef} style={{ position: "relative", width: "100%", minHeight: svgHeight }}>
-      {containerWidth > 0 && (
-        <svg
-          viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-          width="100%"
-          height={svgHeight}
-          style={{ display: "block" }}
-          aria-label="Гистограмма"
-        >
+      <svg
+        viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+        width="100%"
+        height={svgHeight}
+        style={{ display: "block" }}
+        aria-label="Гистограмма"
+      >
         {gridLines.map((t) => (
           <g key={t.y}>
             <line x1={margin.left} x2={svgWidth - margin.right} y1={t.y} y2={t.y} stroke="#eef2f7" />
@@ -190,8 +189,7 @@ export function BarChart({ data, height = 260, yLabel }: BarChartProps) {
             Нет данных
           </text>
         )}
-        </svg>
-      )}
+      </svg>
       <ChartTooltip tooltip={tooltip} />
     </div>
   );

@@ -2,8 +2,12 @@ import axios from "axios";
 import { tokenManager } from "./auth/token-manager";
 import { useSystemStore } from "./system/system-store";
 
+const baseURL =
+  ((import.meta as unknown as { env?: Record<string, string | undefined> }).env?.VITE_API_BASE_URL ??
+    "http://localhost:3000");
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3000",
+  baseURL,
   headers: {
     "Content-Type": "application/json",
   },
